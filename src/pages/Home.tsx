@@ -124,7 +124,7 @@ const Home = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-4xl md:text-5xl font-bold mb-12 text-center"
       >
-        Exam Management System
+        REC Tracker
       </motion.h1>
 
       {!selectedDept && renderMainMenu()}
