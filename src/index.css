@@ -1,12 +1,11 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 0%;
+    --foreground: 47 100% 50%;
     
     --card: 0 0% 3%;
     --card-foreground: 0 0% 98%;
@@ -41,7 +40,7 @@
 }
 
 .glass-card {
-  @apply bg-opacity-10 backdrop-blur-md bg-white border border-white/10 shadow-xl;
+  @apply bg-opacity-10 backdrop-blur-md bg-white/5 border border-white/10 shadow-xl;
 }
 
 .department-button {
@@ -58,10 +57,46 @@
 
 .feature-button {
   @apply flex flex-col items-center justify-center px-8 py-6 rounded-xl text-lg font-medium
-         transition-all duration-300 bg-secondary text-secondary-foreground
-         hover:bg-secondary/90 active:scale-95 focus:outline-none focus:ring-2
-         focus:ring-ring focus:ring-offset-2 w-full hover:bg-white/5
-         border border-white/10 backdrop-blur-md;
+         transition-all duration-300 bg-black text-primary
+         hover:bg-black/80 active:scale-95 focus:outline-none focus:ring-2
+         focus:ring-ring focus:ring-offset-2 w-full
+         border border-primary/20 shadow-lg hover:shadow-primary/20
+         backdrop-blur-md relative overflow-hidden;
+}
+
+.feature-button::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-primary/10 to-white/5
+         opacity-0 transition-opacity duration-300;
+}
+
+.feature-button:hover::before {
+  @apply opacity-100;
+}
+
+.icon-3d {
+  filter: drop-shadow(2px 2px 0 rgba(255, 215, 0, 0.5))
+          drop-shadow(-2px -2px 0 rgba(192, 192, 192, 0.5));
+  transition: transform 0.2s ease;
+}
+
+.feature-button:hover .icon-3d {
+  transform: translateY(-2px) scale(1.1);
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-[#FFD700] via-[#FFF] to-[#C0C0C0] bg-clip-text text-transparent
+         animate-gradient bg-300% font-bold;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradient 8s linear infinite;
 }
 
 .fade-enter {

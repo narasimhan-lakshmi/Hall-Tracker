@@ -9,6 +9,7 @@ const years = [1, 2, 3, 4];
 
 const Home = () => {
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  const [showDepartments, setShowDepartments] = useState(false);
   const navigate = useNavigate();
 
   const handleYearSelect = (year: number) => {
@@ -28,9 +29,9 @@ const Home = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="feature-button"
-          onClick={() => setSelectedDept(null)}
+          onClick={() => setShowDepartments(true)}
         >
-          <Grid className="w-6 h-6 mb-2" />
+          <Grid className="w-8 h-8 mb-2 icon-3d text-primary" />
           Hall Allocation
         </motion.button>
         <motion.button
@@ -39,7 +40,7 @@ const Home = () => {
           className="feature-button"
           onClick={() => navigate('/seat-arrangements')}
         >
-          <Coffee className="w-6 h-6 mb-2" />
+          <Coffee className="w-8 h-8 mb-2 icon-3d text-primary" />
           Smart Cafeteria
         </motion.button>
         <motion.button
@@ -48,7 +49,7 @@ const Home = () => {
           className="feature-button"
           onClick={() => navigate('/map-tracking')}
         >
-          <Map className="w-6 h-6 mb-2" />
+          <Map className="w-8 h-8 mb-2 icon-3d text-primary" />
           Smart Navigation
         </motion.button>
       </div>
@@ -61,7 +62,7 @@ const Home = () => {
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col gap-4 items-center"
     >
-      <p className="text-lg mb-6 text-foreground/80">Select Department</p>
+      <p className="text-lg mb-6 text-gradient">Select Department</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {departments.map((dept) => (
           <motion.button
@@ -78,8 +79,8 @@ const Home = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="mt-8 text-sm text-foreground/60 hover:text-foreground"
-        onClick={() => setSelectedDept(null)}
+        className="mt-8 text-sm text-gradient hover:opacity-80"
+        onClick={() => setShowDepartments(false)}
       >
         ← Back to Features
       </motion.button>
@@ -92,7 +93,7 @@ const Home = () => {
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col gap-4 items-center"
     >
-      <p className="text-lg mb-6 text-foreground/80">Select Year</p>
+      <p className="text-lg mb-6 text-gradient">Select Year</p>
       <div className="grid grid-cols-2 gap-4">
         {years.map((year) => (
           <motion.button
@@ -109,7 +110,7 @@ const Home = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="mt-8 text-sm text-foreground/60 hover:text-foreground"
+        className="mt-8 text-sm text-gradient hover:opacity-80"
         onClick={() => setSelectedDept(null)}
       >
         ← Back to Departments
@@ -118,17 +119,17 @@ const Home = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-background/90">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-black">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-4xl md:text-5xl font-bold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80"
+        className="text-4xl md:text-5xl font-bold mb-12 text-center text-gradient"
       >
         REC Tracker
       </motion.h1>
 
-      {!selectedDept && renderMainMenu()}
-      {selectedDept === null && renderDepartmentSelection()}
+      {!showDepartments && !selectedDept && renderMainMenu()}
+      {showDepartments && !selectedDept && renderDepartmentSelection()}
       {selectedDept && renderYearSelection()}
     </div>
   );
