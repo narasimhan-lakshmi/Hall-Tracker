@@ -1,4 +1,4 @@
-
+The Hall Allocation feature can be viewed in : https://hall-tracker-g84bcu1lo-lakshminarasimhan-s-projects.vercel.app/
 
 Follow these steps:
 
@@ -27,4 +27,4 @@ This project is built with .
 - React
 - shadcn-ui
 - Tailwind CSS
-
+- YOLO and Flask 
