@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Map, Grid, CalendarDays } from 'lucide-react';
+import { Map, Grid, Coffee } from 'lucide-react';
 
 const departments = ['IT', 'CSE', 'ECE'];
 const years = [1, 2, 3, 4];
@@ -39,8 +39,8 @@ const Home = () => {
           className="feature-button"
           onClick={() => navigate('/seat-arrangements')}
         >
-          <CalendarDays className="w-6 h-6 mb-2" />
-          Seat Arrangements
+          <Coffee className="w-6 h-6 mb-2" />
+          Smart Cafeteria
         </motion.button>
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -49,7 +49,7 @@ const Home = () => {
           onClick={() => navigate('/map-tracking')}
         >
           <Map className="w-6 h-6 mb-2" />
-          Map Tracking
+          Smart Navigation
         </motion.button>
       </div>
     </motion.div>
@@ -118,11 +118,11 @@ const Home = () => {
   );
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-background to-background/90">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-4xl md:text-5xl font-bold mb-12 text-center"
+        className="text-4xl md:text-5xl font-bold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80"
       >
         REC Tracker
       </motion.h1>
