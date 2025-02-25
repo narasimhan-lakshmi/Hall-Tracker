@@ -1,15 +1,18 @@
-
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Coffee, Users, ArrowRight, Video } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useToast } from "@/components/ui/use-toast";
+
+const WEBCAM_URL = "http://192.168.75.70:8080/video";
+const PEOPLE_LIMIT = 10;
 
 const cafeterias = [
   {
     id: 1,
     name: 'Hut Cafeteria',
-    capacity: 100,
-    currentOccupancy: 95,
+    capacity: PEOPLE_LIMIT,
+    currentOccupancy: 0,
     location: 'Near IT Block',
     alternativeSuggestion: 'REC Café',
     hasLiveStream: true
@@ -36,26 +39,49 @@ const cafeterias = [
 
 const SeatArrangements = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedCafeteria, setSelectedCafeteria] = useState<typeof cafeterias[0] | null>(null);
   const [peopleCount, setPeopleCount] = useState<number>(0);
   const [isLimitExceeded, setIsLimitExceeded] = useState<boolean>(false);
+  const [streamError, setStreamError] = useState<boolean>(false);
 
   useEffect(() => {
     if (selectedCafeteria?.hasLiveStream) {
       const interval = setInterval(() => {
-        // In a real implementation, this would fetch from your Flask backend
-        fetch("/get_people_count")
-          .then(response => response.json())
+        fetch("http://192.168.75.70:8080/get_people_count")
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
           .then(data => {
             setPeopleCount(data.count);
-            setIsLimitExceeded(data.limit_exceeded);
+            setIsLimitExceeded(data.count > PEOPLE_LIMIT);
+            setStreamError(false);
+            
+            const updatedCafeterias = cafeterias.map(cafe => {
+              if (cafe.id === 1) {
+                return { ...cafe, currentOccupancy: data.count };
+              }
+              return cafe;
+            });
+            // Update cafeterias with new data
           })
-          .catch(error => console.error("Error fetching count:", error));
+          .catch(error => {
+            console.error("Error fetching count:", error);
+            setStreamError(true);
+            toast({
+              variant: "destructive",
+              title: "Connection Error",
+              description: "Unable to connect to the camera feed. Please try again later."
+            });
+          });
       }, 2000);
 
       return () => clearInterval(interval);
     }
-  }, [selectedCafeteria]);
+  }, [selectedCafeteria, toast]);
 
   const getOccupancyColor = (percentage: number) => {
     if (percentage > 90) return 'text-red-500';
@@ -139,22 +165,31 @@ const SeatArrangements = () => {
               
               {selectedCafeteria.hasLiveStream && (
                 <div className="video-box w-full max-w-2xl mx-auto">
-                  <img
-                    src="/video_feed"
-                    alt="Live Feed"
-                    className="w-full rounded-lg border-2 border-primary shadow-lg shadow-primary/20"
-                  />
-                  <div className="mt-4 text-xl">
-                    People Count: <span className="text-primary font-bold">{peopleCount}</span>
-                  </div>
-                  {isLimitExceeded && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-red-500 font-bold mt-2"
-                    >
-                      Hut Cafe is full! Look for another location.
-                    </motion.div>
+                  {!streamError ? (
+                    <>
+                      <img
+                        src={WEBCAM_URL}
+                        alt="Live Feed"
+                        className="w-full rounded-lg border-2 border-primary shadow-lg shadow-primary/20"
+                        onError={() => setStreamError(true)}
+                      />
+                      <div className="mt-4 text-xl">
+                        People Count: <span className="text-primary font-bold">{peopleCount}</span>
+                      </div>
+                      {isLimitExceeded && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="text-red-500 font-bold mt-2"
+                        >
+                          Hut Cafe is full! Look for another location.
+                        </motion.div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="p-8 text-red-500 text-center">
+                      Unable to connect to camera feed. Please try again later.
+                    </div>
                   )}
                 </div>
               )}
