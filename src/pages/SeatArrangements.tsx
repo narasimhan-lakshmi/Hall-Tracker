@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 
 const WEBCAM_URL = "http://192.168.75.70:8080/video";
+const API_BASE_URL = "http://192.168.75.70:8080";
 const PEOPLE_LIMIT = 10;
 
 const cafeterias = [
@@ -45,43 +46,47 @@ const SeatArrangements = () => {
   const [isLimitExceeded, setIsLimitExceeded] = useState<boolean>(false);
   const [streamError, setStreamError] = useState<boolean>(false);
 
+  const fetchPeopleCount = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_people_count`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("People count data:", data);
+      
+      setPeopleCount(data.count);
+      setIsLimitExceeded(data.count > PEOPLE_LIMIT);
+      setStreamError(false);
+    } catch (error) {
+      console.error("Error fetching count:", error);
+      setStreamError(true);
+      toast({
+        variant: "destructive",
+        title: "Connection Error",
+        description: "Unable to connect to the camera feed. Please verify the camera server is running and accessible."
+      });
+    }
+  };
+
   useEffect(() => {
     if (selectedCafeteria?.hasLiveStream) {
-      const interval = setInterval(() => {
-        fetch("http://192.168.75.70:8080/get_people_count")
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
-            setPeopleCount(data.count);
-            setIsLimitExceeded(data.count > PEOPLE_LIMIT);
-            setStreamError(false);
-            
-            const updatedCafeterias = cafeterias.map(cafe => {
-              if (cafe.id === 1) {
-                return { ...cafe, currentOccupancy: data.count };
-              }
-              return cafe;
-            });
-            // Update cafeterias with new data
-          })
-          .catch(error => {
-            console.error("Error fetching count:", error);
-            setStreamError(true);
-            toast({
-              variant: "destructive",
-              title: "Connection Error",
-              description: "Unable to connect to the camera feed. Please try again later."
-            });
-          });
-      }, 2000);
+      fetchPeopleCount();
+      
+      const interval = setInterval(fetchPeopleCount, 2000);
 
       return () => clearInterval(interval);
     }
-  }, [selectedCafeteria, toast]);
+  }, [selectedCafeteria]);
 
   const getOccupancyColor = (percentage: number) => {
     if (percentage > 90) return 'text-red-500';
@@ -171,7 +176,14 @@ const SeatArrangements = () => {
                         src={WEBCAM_URL}
                         alt="Live Feed"
                         className="w-full rounded-lg border-2 border-primary shadow-lg shadow-primary/20"
-                        onError={() => setStreamError(true)}
+                        onError={() => {
+                          setStreamError(true);
+                          toast({
+                            variant: "destructive",
+                            title: "Video Feed Error",
+                            description: "Unable to load the video feed. Please check your connection."
+                          });
+                        }}
                       />
                       <div className="mt-4 text-xl">
                         People Count: <span className="text-primary font-bold">{peopleCount}</span>
@@ -188,7 +200,7 @@ const SeatArrangements = () => {
                     </>
                   ) : (
                     <div className="p-8 text-red-500 text-center">
-                      Unable to connect to camera feed. Please try again later.
+                      Unable to connect to camera feed. Please verify that the camera server is running and accessible.
                     </div>
                   )}
                 </div>
